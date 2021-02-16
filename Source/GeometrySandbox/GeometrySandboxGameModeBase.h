@@ -13,5 +13,6 @@ UCLASS()
 class GEOMETRYSANDBOX_API AGeometrySandboxGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+public:
+	AGeometrySandboxGameModeBase();
 };
