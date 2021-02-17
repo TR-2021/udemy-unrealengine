@@ -7,11 +7,12 @@
 #include "ShootThemUpGameModeBase.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTTHEMUP_API AShootThemUpGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+  public:
+	AShootThemUpGameModeBase();
 };
