@@ -1,8 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Player/STUBaseCharacter.h"
+#include "Player/STUHealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -11,12 +13,22 @@ ASTUBaseCharacter::ASTUBaseCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need
 	// it.
 	PrimaryActorTick.bCanEverTick = true;
+
+
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+	
+	HealthComponent = CreateDefaultSubobject<USTUHealthComponent>("Commponent");
+	HealthComponent->OnHealthChanged.AddUObject(this, &ASTUBaseCharacter::OnHealthChanged);
+	HealthComponent->OnDeath.AddUObject(this, &ASTUBaseCharacter::OnDeath);
+
+	TextComponent = CreateDefaultSubobject<UTextRenderComponent>("Text");
+	TextComponent->SetupAttachment(GetRootComponent());
+
 	MaxRunSpeed = 3000;
 	ImpulseMultiplier = 4;
 }
@@ -26,12 +38,14 @@ void ASTUBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	DefaultSpeed = GetMovementComponent()->GetMaxSpeed();
+	
 }
 
 // Called every frame
 void ASTUBaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 }
 
 // Called to bind functionality to input
@@ -74,6 +88,15 @@ void ASTUBaseCharacter::StopRun()
 	IsWantToRun = false;
 }
 
+
+
+void ASTUBaseCharacter::OnHealthChanged(float Health)
+{
+	TextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+
+
 bool ASTUBaseCharacter::IsRunning()
 {
 	return IsWantToRun && IsMovingForward && GetVelocity().Size() > 0;
@@ -87,6 +110,13 @@ float ASTUBaseCharacter::GetMovementDirection() const
 	ForwardVector.Normalize();
 	VelocityVector.Normalize();
 	float angle = FMath::Acos(FVector::DotProduct(ForwardVector, VelocityVector));
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::SanitizeFloat(FMath::RadiansToDegrees(angle) * FMath::Sign(CrossProduct.Z)));
 	return FMath::RadiansToDegrees(angle) * FMath::Sign(CrossProduct.Z);
+}
+
+void ASTUBaseCharacter::OnDeath()
+{
+	PlayAnimMontage(DeathAnimationMontage);
+	GetCharacterMovement()->DisableMovement();
+	GetController()->ChangeState(NAME_Spectating);
+	SetLifeSpan(3);
 }
