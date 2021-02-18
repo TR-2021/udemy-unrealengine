@@ -1,11 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Player/STUBaseCharacter.h"
-#include "Player/STUHealthComponent.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/STUWeaponComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Player/STUHealthComponent.h"
 
 // Sets default values
 ASTUBaseCharacter::ASTUBaseCharacter()
@@ -14,19 +16,22 @@ ASTUBaseCharacter::ASTUBaseCharacter()
 	// it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->SocketOffset= FVector(0.0,50.0f,100.0f);
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraComponent->SetupAttachment(SpringArmComponent);
-	
-	HealthComponent = CreateDefaultSubobject<USTUHealthComponent>("Commponent");
+
+	HealthComponent = CreateDefaultSubobject<USTUHealthComponent>("Health Commponent");
 	HealthComponent->OnHealthChanged.AddUObject(this, &ASTUBaseCharacter::OnHealthChanged);
 	HealthComponent->OnDeath.AddUObject(this, &ASTUBaseCharacter::OnDeath);
+	
+	WeaponComponent = CreateDefaultSubobject<USTUWeaponComponent>("Weapon Commponent");
 
 	TextComponent = CreateDefaultSubobject<UTextRenderComponent>("Text");
+	TextComponent->SetOwnerNoSee(true); 
 	TextComponent->SetupAttachment(GetRootComponent());
 
 	MaxRunSpeed = 3000;
@@ -38,14 +43,12 @@ void ASTUBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	DefaultSpeed = GetMovementComponent()->GetMaxSpeed();
-	
 }
 
 // Called every frame
 void ASTUBaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 }
 
 // Called to bind functionality to input
@@ -59,6 +62,9 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &Super::Jump);
 	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ASTUBaseCharacter::StartRun);
 	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ASTUBaseCharacter::StopRun);
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, WeaponComponent, &USTUWeaponComponent::StartFire);
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, WeaponComponent, &USTUWeaponComponent::StopFire);
+	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent, &USTUWeaponComponent::NextWeapon);
 }
 
 void ASTUBaseCharacter::MoveForward(float Input)
@@ -88,14 +94,10 @@ void ASTUBaseCharacter::StopRun()
 	IsWantToRun = false;
 }
 
-
-
 void ASTUBaseCharacter::OnHealthChanged(float Health)
 {
 	TextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }
-
-
 
 bool ASTUBaseCharacter::IsRunning()
 {
@@ -116,7 +118,13 @@ float ASTUBaseCharacter::GetMovementDirection() const
 void ASTUBaseCharacter::OnDeath()
 {
 	PlayAnimMontage(DeathAnimationMontage);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetEnablePhysicsBlending(true);
+
 	GetCharacterMovement()->DisableMovement();
 	GetController()->ChangeState(NAME_Spectating);
+	WeaponComponent->StopFire();
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	SetLifeSpan(3);
 }

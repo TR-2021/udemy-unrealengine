@@ -11,6 +11,7 @@ class USpringArmComponent;
 class USTUHealthComponent;
 class UTextRenderComponent;
 class UAnimationMontage;
+class USTUWeaponComponent;
 UCLASS()
 class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
 {
@@ -21,7 +22,6 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
 	ASTUBaseCharacter();
 
   protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -44,14 +44,19 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
 
 	bool IsMovingForward;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health") 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health2") 
 	USTUHealthComponent *HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
 	UTextRenderComponent *TextComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage *DeathAnimationMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animation")
+	USTUWeaponComponent* WeaponComponent;
+	
+
   public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -65,6 +70,7 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
 	UFUNCTION(BlueprintCallable)
 	float GetMovementDirection() const;
 
+	USTUHealthComponent *GetHealthComponent(){return HealthComponent;}
 
 
   private:
