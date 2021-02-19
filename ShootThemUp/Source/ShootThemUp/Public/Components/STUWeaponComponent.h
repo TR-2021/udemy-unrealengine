@@ -8,7 +8,20 @@
 
 class ASTUBaseWeapon;
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+USTRUCT(BlueprintType)
+struct FWeaponData
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category = "Weapon")
+	TSubclassOf<ASTUBaseWeapon> WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,Category = "Weapon")
+	UAnimMontage* ReloadAnimMontage;
+};
+
+
+	UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTTHEMUP_API USTUWeaponComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -19,13 +32,14 @@ class SHOOTTHEMUP_API USTUWeaponComponent : public UActorComponent
 	void StartFire();
 	void StopFire();
 	void NextWeapon();
+	void Reload();
   protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TArray<TSubclassOf<ASTUBaseWeapon>> WeaponClasses;
+	TArray<FWeaponData> WeaponData;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	FName PrimaryWeaponAttachSocketName = "WeaponSocket";
@@ -44,9 +58,11 @@ class SHOOTTHEMUP_API USTUWeaponComponent : public UActorComponent
 	
 	UPROPERTY()
 	ASTUBaseWeapon *CurrentWeapon = nullptr;
-
+	UPROPERTY()
+	UAnimMontage *CurrentReloadAnimMontage = nullptr;
 	
 	bool EquipAnimInProgress = false;
+	bool ReloadAnimInProgress = false;
 
   private:
 	void SpawnWeapons();
@@ -55,6 +71,26 @@ class SHOOTTHEMUP_API USTUWeaponComponent : public UActorComponent
 	void PlayAnim(UAnimMontage *AnimMontage);
 	void InitAnimations();
 	void OnEquipedFinished(USkeletalMeshComponent *SkeletalMesh);
+	void OnReloadFinished(USkeletalMeshComponent *SkeletalMesh);
 	bool CanFire();
 	bool CanEquip();
+	bool CanReload();
+	void OnEmptyClip();
+	void ChangeClip();
+
+	template <class T> T *FindAnimNotifyByClass(UAnimSequenceBase* Animation);
 };
+
+template <class T> inline T *USTUWeaponComponent::FindAnimNotifyByClass(UAnimSequenceBase* Animation)
+{
+	if (!Animation)
+		return nullptr;
+	
+	auto const NotifyEvents = Animation->Notifies;
+	for (auto NotifyEvent : NotifyEvents)
+	{
+		auto AnimMontage = Cast<T>(NotifyEvent.Notify);
+		if (AnimMontage){return AnimMontage;}
+	}
+	return nullptr;
+}

@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "STUBaseWeapon.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature)
+
 class USkeletalMeshComponent;
 
 USTRUCT()
@@ -32,6 +34,9 @@ class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
 	// Sets default values for this actor's properties
 	ASTUBaseWeapon();
 
+	FOnClipEmptySignature OnEmpty;
+	void ChangeClip();
+	bool CanReload();
   protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -71,7 +76,6 @@ public:
 	void DecreaseAmmo();
 	bool IsAmmoEmpty();
 	bool IsClipEmpty();
-	void ChangeClip();
 	void LogAmmo();
 
 };
