@@ -7,6 +7,7 @@
 #include "Components/STUWeaponComponent.h"
 #include "GameFramework/Character.h"
 #include "Weapon/STUBaseWeapon.h"
+#include <Weapon/STUBaseWeapon.h>
 
 USTUWeaponComponent::USTUWeaponComponent()
 {
@@ -165,16 +166,43 @@ bool USTUWeaponComponent::CanEquip()
 
 bool USTUWeaponComponent::CanReload()
 {
-	return CurrentWeapon != nullptr 
-		&& !EquipAnimInProgress
-		&& !ReloadAnimInProgress	
-		&&  CurrentWeapon->CanReload();
+	return CurrentWeapon != nullptr && !EquipAnimInProgress && !ReloadAnimInProgress && CurrentWeapon->CanReload();
 }
 void USTUWeaponComponent::Reload()
 {
 	ChangeClip();
 }
 
+bool USTUWeaponComponent::GetWeaponUIData(FWeaponUIData &WeaponUIData)
+{
+	if (CurrentWeapon)
+	{
+		WeaponUIData = CurrentWeapon->GetUIData();
+		return true;
+	}
+	return false;
+};
+
+bool USTUWeaponComponent::GetWeaponData(FAmmoData &WeaponAmmoData)
+{
+	if (CurrentWeapon)
+	{
+		WeaponAmmoData = CurrentWeapon->GetWeaponData();
+		return true;
+	}
+	return false;
+}
+bool USTUWeaponComponent::TryAddAmmo(TSubclassOf<ASTUBaseWeapon> WeaponType, int32 Amount)
+{
+	for (const auto Weapon : Weapons)
+	{
+		if (Weapon && Weapon->IsA(WeaponType))
+		{
+			return Weapon->TryAddAmmo(Amount);
+		}
+	}
+	return false;
+}
 void USTUWeaponComponent::OnEmptyClip()
 {
 	ChangeClip();

@@ -125,9 +125,43 @@ bool ASTUBaseWeapon::CanReload()
 	return CurrentAmmoData.Bullets < DefaultsAmmoData.Bullets && CurrentAmmoData.Clips >0;
 }
 
+
 void ASTUBaseWeapon::LogAmmo()
 {
 	FString AmmoInfo = "Ammo " + FString::FromInt(CurrentAmmoData.Bullets) + " / ";
 	AmmoInfo += CurrentAmmoData.IsInfinity?"Infinity":FString::FromInt(CurrentAmmoData.Clips);
 	UE_LOG(LogTemp, Display, TEXT("%s"), *AmmoInfo);
+}
+
+bool ASTUBaseWeapon::TryAddAmmo(int32 Amount)
+{
+	if (IsFullAmmo() || CurrentAmmoData.IsInfinity || Amount <=0) return false;
+	if (IsAmmoEmpty())
+	{
+		CurrentAmmoData.Clips = FMath::Clamp(Amount, 0, DefaultsAmmoData.Clips+1);
+		OnEmpty.Broadcast();
+	}
+	else if (CurrentAmmoData.Clips < DefaultsAmmoData.Clips)
+	{
+		const auto NextClipsAmount = CurrentAmmoData.Clips + Amount;
+		if (DefaultsAmmoData.Clips - NextClipsAmount >= 0)
+		{
+			CurrentAmmoData.Clips = NextClipsAmount;
+		}
+		else
+		{
+			CurrentAmmoData.Clips = DefaultsAmmoData.Clips;
+			CurrentAmmoData.Bullets = DefaultsAmmoData.Bullets;
+		}
+	}
+	else
+	{
+		CurrentAmmoData.Bullets = DefaultsAmmoData.Bullets;
+	}
+	return true;
+}
+
+bool ASTUBaseWeapon::IsFullAmmo()
+{
+	return CurrentAmmoData.Bullets == DefaultsAmmoData.Bullets && CurrentAmmoData.Clips == DefaultsAmmoData.Clips;
 }

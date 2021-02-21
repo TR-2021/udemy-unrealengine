@@ -72,7 +72,6 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
 
 	USTUHealthComponent *GetHealthComponent(){return HealthComponent;}
 
-
   private:
 	void MoveForward(float Input);
 	void MoveRight(float Input);

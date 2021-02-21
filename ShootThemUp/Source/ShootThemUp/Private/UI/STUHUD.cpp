@@ -2,12 +2,22 @@
 
 #include "UI/STUHUD.h"
 #include "Engine/Canvas.h"
+#include <UI/STUUserWidget.h>
 
-void ASTUHUD::DrawHUD()
+ 
+ void ASTUHUD::DrawHUD()
 {
-	DrawCrosshair();
+	//DrawCrosshair();
 }
-
+void ASTUHUD::BeginPlay()
+{
+	Super::BeginPlay();
+	auto PlayerHUDWidget = CreateWidget<UUserWidget>(GetWorld(), UserWidgetClass);
+	if (PlayerHUDWidget)
+	{
+		PlayerHUDWidget->AddToViewport();
+	}
+};
 void ASTUHUD::DrawCrosshair()
 {
 	int32 SizeX = Canvas->SizeX;

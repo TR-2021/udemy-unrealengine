@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/STUHealthComponent.h"
+#include "..\..\Public\Player\STUBaseCharacter.h"
 
 // Sets default values
 ASTUBaseCharacter::ASTUBaseCharacter()
@@ -67,6 +68,7 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent, &USTUWeaponComponent::NextWeapon);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, WeaponComponent, &USTUWeaponComponent::Reload);
 }
+
 
 void ASTUBaseCharacter::MoveForward(float Input)
 {

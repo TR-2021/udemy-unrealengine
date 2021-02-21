@@ -7,7 +7,8 @@
 #include "STUWeaponComponent.generated.h"
 
 class ASTUBaseWeapon;
-
+struct FWeaponUIData;
+struct FAmmoData;
 USTRUCT(BlueprintType)
 struct FWeaponData
 {
@@ -33,6 +34,10 @@ class SHOOTTHEMUP_API USTUWeaponComponent : public UActorComponent
 	void StopFire();
 	void NextWeapon();
 	void Reload();
+	bool GetWeaponUIData(FWeaponUIData &WeaponUIData);
+	bool GetWeaponData(FAmmoData &WeaponAmmoData);
+	bool TryAddAmmo(TSubclassOf<ASTUBaseWeapon> WeaponType, int32 Amount);
+	
   protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -78,6 +83,7 @@ class SHOOTTHEMUP_API USTUWeaponComponent : public UActorComponent
 	void OnEmptyClip();
 	void ChangeClip();
 
+	
 	template <class T> T *FindAnimNotifyByClass(UAnimSequenceBase* Animation);
 };
 

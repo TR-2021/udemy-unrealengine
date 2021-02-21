@@ -20,7 +20,10 @@ class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsDead(){return Health <=0;}
+	UFUNCTION(BlueprintCallable,Category="Health")
+	float GetHealthPercent() const { return Health / MaxHealth;}
 
+	bool TryAddHealth(int32 Amount);
 	FOnDeath OnDeath;
 	FOnHealthChanged OnHealthChanged;
 

@@ -10,18 +10,31 @@ DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature)
 
 class USkeletalMeshComponent;
 
-USTRUCT()
+USTRUCT(BlueprintType)
+struct FWeaponUIData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "UI")
+	UTexture2D* MainIcon;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "UI")
+	UTexture2D *CrosshairIcon;
+};
+
+
+USTRUCT(BlueprintType)
 struct FAmmoData
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnyWhere, Category = "Ammo")
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Ammo")
 	int32 Bullets;
 
-	UPROPERTY(EditAnyWhere, Category = "Ammo")
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Ammo")
 	int32 Clips;
 
-	UPROPERTY(EditAnyWhere, Category = "Ammo")
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Ammo")
 	bool IsInfinity;
 };
 
@@ -37,6 +50,9 @@ class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
 	FOnClipEmptySignature OnEmpty;
 	void ChangeClip();
 	bool CanReload();
+	bool IsFullAmmo();
+	FWeaponUIData GetUIData() const {return WeaponUIData;};
+	FAmmoData GetWeaponData() const {return CurrentAmmoData;};
   protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -55,7 +71,10 @@ class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
 
 	UPROPERTY(EditAnyWhere, Category = "Ammunition")
 	FAmmoData DefaultsAmmoData{20,5,false};
-
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FWeaponUIData WeaponUIData;
+	
 	FTimerHandle FireTimerHandle;
 	FName MuzzleSocketName = "MuzzleSocket";
 
@@ -77,6 +96,6 @@ public:
 	bool IsAmmoEmpty();
 	bool IsClipEmpty();
 	void LogAmmo();
-
+	bool TryAddAmmo(int32 Amount);
 };
 

@@ -3,6 +3,7 @@
 #include "Player/STUHealthComponent.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "..\..\Public\Player\STUHealthComponent.h"
 
 // Sets default values for this component's properties
 USTUHealthComponent::USTUHealthComponent()
@@ -14,6 +15,7 @@ USTUHealthComponent::USTUHealthComponent()
 void USTUHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	check(MaxHealth > 0); 
 	SetHealth(MaxHealth);
 	OnHealthChanged.Broadcast(Health);
 	AActor *Owner = GetOwner();
@@ -38,6 +40,13 @@ void USTUHealthComponent::OnAnyDamage(AActor *DamagedActor, float Damage, const 
 		GetWorld()->GetTimerManager().ClearTimer(HealTimerHanlde);
 		OnDeath.Broadcast();
 	}
+}
+
+bool USTUHealthComponent::TryAddHealth(int32 Amount)
+{
+	if (Health == MaxHealth || IsDead()) return false;
+	SetHealth(Health + Amount);
+	return true;
 }
 
 void USTUHealthComponent::Heal()
