@@ -9,6 +9,9 @@
 /**
  * 
  */
+class USTUWeaponFXComponent;
+class UNiagaraComponent;
+class UNiagaraSystem;
 UCLASS()
 class SHOOTTHEMUP_API ASTURifleWeapon : public ASTUBaseWeapon
 {
@@ -19,4 +22,13 @@ class SHOOTTHEMUP_API ASTURifleWeapon : public ASTUBaseWeapon
 	virtual void MakeShot()  override;
 	virtual void StartFire()  override;
 	virtual void StopFire()  override;
+
+  protected:
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	USTUWeaponFXComponent *WeaponFXComponent;
+	
+	UPROPERTY()
+	UNiagaraComponent *MuzzzleFXComponent;
+	void InitMuzzleFX();
+	void SetMuzzleVisibility(bool state);
 };

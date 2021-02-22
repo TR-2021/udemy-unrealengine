@@ -9,6 +9,8 @@
 DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature)
 
 class USkeletalMeshComponent;
+class UNiagaraComponent;
+class UNiagaraSystem;
 
 USTRUCT(BlueprintType)
 struct FWeaponUIData
@@ -75,9 +77,13 @@ class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	FWeaponUIData WeaponUIData;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FX")
+	UNiagaraSystem *MuzzleFX;
+
 	FTimerHandle FireTimerHandle;
 	FName MuzzleSocketName = "MuzzleSocket";
-
+	
+	UNiagaraComponent* SpawnMuzzleFX();
   private:
 	UPROPERTY(EditAnyWhere, Category = "Ammunition")
 	FAmmoData CurrentAmmoData;

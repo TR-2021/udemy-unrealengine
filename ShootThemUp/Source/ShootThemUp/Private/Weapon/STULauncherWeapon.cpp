@@ -9,7 +9,7 @@
 #include "Weapon/STUProjectile.h"
 #include "Kismet/GameplayStatics.h"
 
-ASTULauncherWeapon::ASTULauncherWeapon() : ASTUBaseWeapon()
+ASTULauncherWeapon::ASTULauncherWeapon() 
 {
 	Inaccuracy = 0;
 	FireRate = 1;
@@ -43,6 +43,6 @@ void ASTULauncherWeapon::MakeShot()
 		Projectile->SetOwner(GetOwner());
 		Projectile->FinishSpawning(SpawnTransform);
 		DecreaseAmmo();
+		SpawnMuzzleFX();
 	}
-	
 }

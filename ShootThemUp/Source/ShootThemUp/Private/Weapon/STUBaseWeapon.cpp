@@ -5,6 +5,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 ASTUBaseWeapon::ASTUBaseWeapon()
@@ -13,13 +15,13 @@ ASTUBaseWeapon::ASTUBaseWeapon()
 	PrimaryActorTick.bCanEverTick = false;
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Root");
 	RootComponent = WeaponMesh;
+	CurrentAmmoData = DefaultsAmmoData;
 }
 
 // Called when the game starts or when spawned
 void ASTUBaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentAmmoData = DefaultsAmmoData;
 	check(WeaponMesh);
 }
 
@@ -28,6 +30,12 @@ void ASTUBaseWeapon::StartFire()
 }
 void ASTUBaseWeapon::StopFire()
 {
+}
+
+UNiagaraComponent *ASTUBaseWeapon::SpawnMuzzleFX()
+{
+	return UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFX, WeaponMesh, MuzzleSocketName, FVector::ZeroVector,
+												 FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
 }
 
 void ASTUBaseWeapon::MakeShot()
@@ -73,6 +81,7 @@ void ASTUBaseWeapon::MakeHit(FHitResult &HitResult, FVector &TraceStart, FVector
 {
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
+	CollisionParams.bReturnPhysicalMaterial = true;
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility,
 										 CollisionParams);
 }

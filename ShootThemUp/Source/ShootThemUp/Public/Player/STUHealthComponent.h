@@ -8,6 +8,7 @@
 DECLARE_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged,float);
 
+class UCameraShakeBase;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
@@ -29,14 +30,17 @@ class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
 
 	UPROPERTY(EditAnywhere,Category="AutoHeal")
 	float HealDelay;		// Delay between damage and heal
+
 	UPROPERTY(EditAnywhere, Category = "AutoHeal")
 	float HealRate;			// Rate of executing function Heal
+
 	UPROPERTY(EditAnywhere, Category = "AutoHeal")
 	float HealAmount;
+
 	UPROPERTY(EditAnywhere, Category = "AutoHeal")
 	bool IsAutoHeal = true;
-	
-
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	TSubclassOf<UCameraShakeBase> CameraShake;
 	UPROPERTY()
 	FTimerHandle HealTimerHanlde;
 
@@ -52,7 +56,7 @@ class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
 
  private:
 	float Health = 0.0f;
-	
+   void PlayCameraShake();
 	UFUNCTION()
 	void OnAnyDamage(AActor *DamagedActor, float Damage, const class UDamageType *DamageType,
 					 class AController *InstigatedBy, AActor *DamageCauser);

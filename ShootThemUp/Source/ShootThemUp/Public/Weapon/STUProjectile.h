@@ -8,6 +8,8 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class USTUWeaponFXComponent;
+
 UCLASS()
 class SHOOTTHEMUP_API ASTUProjectile : public AActor
 {
@@ -38,6 +40,8 @@ class SHOOTTHEMUP_API ASTUProjectile : public AActor
 
 	UPROPERTY(EditDefaultsOnly)
 	bool IsFullDamage= false; 
+	UPROPERTY(VisibleAnywhere, Category = "VFX")
+	USTUWeaponFXComponent *WeaponFXComponent;
 
   private:
 	FVector ShotDirection;
